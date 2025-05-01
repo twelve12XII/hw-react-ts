@@ -1,0 +1,11 @@
+.contact-actions_container {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  margin: 2rem;
+}
+
+.block {
+  display: flex;
+  gap: 1rem;
+}

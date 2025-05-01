@@ -1,0 +1,15 @@
+.contact-data {
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background-color: rgb(192, 192, 192);
+  color: black;
+  border-bottom: 1px solid grey;
+  font-size: smaller;
+}
