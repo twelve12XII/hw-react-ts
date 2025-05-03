@@ -24,7 +24,7 @@ export const saveContact = (contact: Contact) => {
     if (!exists) {
       const newContact: Contact = {
         ...contact,
-        id: generateId(),
+        id: key + generateId(),
       };
       contacts.push(newContact);
       localStorage.setItem(key, JSON.stringify(contacts));
@@ -63,17 +63,50 @@ export const getAllContacts = (): Contact[] => {
   return contacts.sort((a, b) => a.name.localeCompare(b.name));
 };
 
-// Обновление контакта
+
+
+export const saveContactsByLetter = (letter: string, contacts: Contact[]) => {
+  localStorage.setItem(letter, JSON.stringify(contacts));
+};
+
+export const getContactById = (id: string): Contact | null => {
+  const firstLetter = id.charAt(0).toUpperCase(); // Предполагаем, что id начинается с буквы имени
+  const contacts = getContactsByLetter(firstLetter);
+  return contacts.find(c => c.id === id) || null;
+};
+
+//обновление контакта
 export const updateContact = (updatedContact: Contact): boolean => {
-  const key = getStorageKey(updatedContact.name);
-  const contacts = getContactsByLetter(key);
+  const oldContact = getContactById(updatedContact.id);
+  if (!oldContact) return false;
 
-  const index = contacts.findIndex((c) => c.id === updatedContact.id);
-  if (index === -1) return false;
+  const oldKey = getStorageKey(oldContact.name);
+  const newKey = getStorageKey(updatedContact.name);
 
-  contacts[index] = updatedContact;
-  localStorage.setItem(key, JSON.stringify(contacts));
-  storageEvent.emit(`contacts-updated:${key}`, key);
+  if (newKey !== oldKey) {
+    updatedContact = {
+      ...updatedContact,
+      id: newKey + updatedContact.id.slice(1)
+    };
+  }
+
+  const oldContacts = getContactsByLetter(oldKey).filter(c => c.id !== oldContact.id);
+  localStorage.setItem(oldKey, JSON.stringify(oldContacts));
+
+  const newContacts = getContactsByLetter(newKey).filter(c => c.id !== updatedContact.id); // На случай если уже есть дубликат
+  localStorage.setItem(newKey, JSON.stringify([...newContacts, updatedContact]));
+
+  storageEvent.emit(`contacts-updated:${oldKey}`, oldKey);
+  storageEvent.emit(`contacts-updated:${newKey}`, newKey);
+  storageEvent.emit(`contact-changed:${oldContact.id}`, { 
+    type: 'deleted', 
+    contactId: oldContact.id 
+  });
+  storageEvent.emit(`contact-changed:${updatedContact.id}`, { 
+    type: 'updated', 
+    contactId: updatedContact.id
+  });
+
   return true;
 };
 
@@ -87,6 +120,7 @@ export const deleteContact = (contact: Contact): boolean => {
 
   localStorage.setItem(key, JSON.stringify(filtered));
   storageEvent.emit(`contacts-updated:${key}`, key);
+  storageEvent.emit(`contact-changed:${contact.id}`, {type: 'deleted', contactId: contact.id});
   return true;
 };
 

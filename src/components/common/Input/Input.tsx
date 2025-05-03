@@ -1,12 +1,12 @@
 import React from "react";
 
 interface InputProps {
-  name: string;
+  name?: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
   pattern?: string;
-  title: string | undefined;
+  title?: string | undefined;
 }
 export default function Input({
   name,
