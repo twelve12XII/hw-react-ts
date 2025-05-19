@@ -1,12 +1,11 @@
-import { EventEmitter } from "events";
-
-export const storageEvent = new EventEmitter();
+import { clearAllContacts, contactsUpdated } from "./contactSlice";
+import { store } from "./store";
 
 // Генерация ID
 const generateId = () => Math.random().toString(36).substring(2, 9);
 
 // Ключ для localStorage (по первой букве имени)
-const getStorageKey = (name: string) => name.charAt(0).toUpperCase();
+export const getStorageKey = (name: string) => name.charAt(0).toUpperCase();
 
 // Сохранение контакта
 export const saveContact = (contact: Contact) => {
@@ -28,7 +27,7 @@ export const saveContact = (contact: Contact) => {
       };
       contacts.push(newContact);
       localStorage.setItem(key, JSON.stringify(contacts));
-      storageEvent.emit(`contacts-updated:${key}`, key);
+      store.dispatch(contactsUpdated({ key, contacts }));
       return true;
     }
     return false;
@@ -73,7 +72,7 @@ export const updateContact = (updatedContact: Contact): boolean => {
 
   contacts[index] = updatedContact;
   localStorage.setItem(key, JSON.stringify(contacts));
-  storageEvent.emit(`contacts-updated:${key}`, key);
+  store.dispatch(contactsUpdated({ key, contacts }));
   return true;
 };
 
@@ -86,7 +85,7 @@ export const deleteContact = (contact: Contact): boolean => {
   if (filtered.length === contacts.length) return false;
 
   localStorage.setItem(key, JSON.stringify(filtered));
-  storageEvent.emit(`contacts-updated:${key}`, key);
+  store.dispatch(contactsUpdated({ key, contacts }));
   return true;
 };
 
@@ -101,8 +100,6 @@ export const searchContacts = (query: string): Contact[] => {
 };
 
 export const clearContactsList = (): void => {
-  Object.keys(localStorage).forEach((key) => {
-    storageEvent.emit(`contacts-updated:${key}`, key);
-  });
   localStorage.clear();
+  store.dispatch(clearAllContacts());
 };

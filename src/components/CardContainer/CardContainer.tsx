@@ -1,23 +1,22 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import CardHeader from "./CardHeader/CardHeader";
 import CardContent from "./CardContent/CardContent";
 import style from "./CardContainer.module.css";
-import { getContactsByLetter } from "../../services/contactStorage";
+import { getStorageKey } from "../../services/contactStorage";
+import { useSelector } from "react-redux";
+import { RootState } from "../../services/store";
 
 interface CardContainerProps {
   letter: string;
-  updateTrigger: number;
 }
-export default function CardContainer({
-  letter,
-  updateTrigger,
-}: CardContainerProps) {
+export default function CardContainer({ letter }: CardContainerProps) {
   const [cardIsOpen, setCardIsOpen] = useState(false);
-  const [contacts, setContacts] = useState(getContactsByLetter(letter));
 
-  useEffect(() => {
-    setContacts(getContactsByLetter(letter));
-  }, [updateTrigger, letter]);
+  const contacts = useSelector((state: RootState) =>
+    state.contacts.contacts.filter(
+      (c) => getStorageKey(c.name) === letter.toUpperCase()
+    )
+  );
 
   const handleOnClick = () => {
     setCardIsOpen((prev) => !prev);
