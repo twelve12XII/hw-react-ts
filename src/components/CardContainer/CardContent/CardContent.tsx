@@ -1,4 +1,3 @@
-import React, { useEffect } from "react";
 import ContactCard from "../ContactCard/ContactCard";
 import style from "./CardContent.module.css";
 

@@ -1,16 +1,18 @@
 import style from "./ContactCard.module.css";
-import { deleteContact } from "../../../services/contactStorage";
 import { useState } from "react";
 import EditContact from "./EditContact/EditContact";
+import { useDispatch } from "react-redux";
+import { deleteContact } from "../../../services/contactSlice";
 
 interface ContactCardProps {
   contact: Contact;
 }
 export default function ContactCard({ contact }: ContactCardProps) {
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const dispatch = useDispatch();
   const handleDeleteContact = () => {
-    deleteContact(contact)
-  }
-  const [isEditOpen, setIsEditOpen] = useState(false)
+    dispatch(deleteContact(contact));
+  };
 
   return (
     <div className={style["contact-card"]}>
@@ -19,9 +21,17 @@ export default function ContactCard({ contact }: ContactCardProps) {
         <span>Vacancy: {contact.vacancy}</span>
         <span>Phone: {contact.phone}</span>
       </div>
-      <a type="button" onClick={()=>setIsEditOpen(true)} href="#">Edit</a>
-      <a type="button" onClick={handleDeleteContact} href="#">{"\u{1F5D9}"}</a>
-      <EditContact contact={contact} isEditOpen={isEditOpen} onClose={()=>setIsEditOpen(false)} />
+      <a type="button" onClick={() => setIsEditOpen(true)} href="#">
+        Edit
+      </a>
+      <a type="button" onClick={handleDeleteContact} href="#">
+        {"\u{1F5D9}"}
+      </a>
+      <EditContact
+        contact={contact}
+        isEditOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+      />
     </div>
   );
 }
